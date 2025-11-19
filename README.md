@@ -66,7 +66,10 @@ rosdep install -i --from-path src --rosdistro humble -y
 
 ## Running and testing the simulator
 If everything has been built correctly and sourced (and with the venv activated), run
+
 `ros2 launch f1tenth_gym_ros gym_bridge_launch.launch`
+
+It may take a moment for the sensors and vehicle model to fire up properly in `RViz`. For example, `LaserScan` may have a warning and the car is a blank white. Wait several moments, and the car should populate with a primitive rendering, and the Lidar scans should show up as a red-to-green colormap along the track walls.
 
 Then, in a new tab, run
 ```
