@@ -79,7 +79,9 @@ ros2 run f1tenth_gym_ros follow_gap
 
 The car should begin moving forward and then ride off into the distance. You are now ready to begin designing your own follow-the-gap algorithms.
 
-`control+c` out of the `follow_gap` node should gracefully kill the algorithm (although the car will keep moving). Then, x-ing out of RVIZ and then `control+c` from the launch terminal should gracefully kill the entire simulation.
+`control+c` out of the `follow_gap` node should gracefully kill the algorithm (although the car will keep moving). If you want to stop the car from moving after killing the follow-the-gap algorithm, you can run the `stop_car` node.
+
+Then, x-ing out of RVIZ and then `control+c` from the launch terminal should gracefully kill the entire simulation. 
 
 
 
