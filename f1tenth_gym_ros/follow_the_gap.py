@@ -87,11 +87,49 @@ class FollowTheGap(Node):
         # Convert ranges to a list
         ranges = list(data.ranges)
 
+        # max_range = max(*ranges)
+        # max_range_index = ranges.index(max_range)
+        # theta = self.lidar_fov * (max_range_index / len(ranges)) - self.lidar_fov / 2
+
+        numerator_r = 0
+        denominator_r = 0
+        
+        for r in ranges:
+          index = ranges.index(r)
+          theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
+          
+          if abs(theta) > math.pi / 3:
+            continue
+          
+          weight_r = r ** (-1/2)
+          numerator_r += weight_r * theta 
+          denominator_r += weight_r
+          
+        steering_angle = -numerator_r / denominator_r
+        
+        numerator_s = 0
+        denominator_s = 0
+        
+        for r in ranges:
+          index = ranges.index(r)
+          theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
+          
+          if abs(theta) > math.pi / 12:
+            continue
+          
+          numerator_s += r
+          denominator_s += 1
+          
+        speed = numerator_s / denominator_s
+        speed = 2.5 * speed ** (1 / 3)
+        
+        print(speed)
+        
+        # print(ranges[0])
+
         # this will make it crash if there are any bends in the track
         # need modifications to this and/or the find_max_gap() method
         # these need to be floats
-        speed = 1.
-        steering_angle = 0.
 
         self.pub_drive(speed, steering_angle)
 
