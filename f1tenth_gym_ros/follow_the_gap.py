@@ -121,7 +121,7 @@ class FollowTheGap(Node):
           denominator_s += 1
           
         speed = numerator_s / denominator_s
-        speed = 2.25 * speed ** (1 / 2)
+        speed = 2.0 * speed ** 0.6
         
         print(speed)
         
