@@ -91,22 +91,6 @@ class FollowTheGap(Node):
         # max_range_index = ranges.index(max_range)
         # theta = self.lidar_fov * (max_range_index / len(ranges)) - self.lidar_fov / 2
 
-        numerator_r = 0
-        denominator_r = 0
-        
-        for r in ranges:
-          index = ranges.index(r)
-          theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
-          
-          if abs(theta) > np.radians(50):
-            continue
-          
-          weight_r = r ** -0.7
-          numerator_r += weight_r * theta 
-          denominator_r += weight_r
-          
-        steering_angle = -numerator_r / denominator_r
-        
         numerator_s = 0
         denominator_s = 0
         
@@ -121,7 +105,25 @@ class FollowTheGap(Node):
           denominator_s += 1
           
         speed = numerator_s / denominator_s
-        speed = 2.0 * speed ** 0.6
+        speed = 1.7 * speed ** 0.65
+
+        numerator_r = 0
+        denominator_r = 0
+        
+        for r in ranges:
+          index = ranges.index(r)
+          theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
+          
+          if abs(theta) > np.radians(50):
+            continue
+          
+          weight_r = r ** -0.7
+          numerator_r += weight_r * theta 
+          denominator_r += weight_r
+          
+        # beta = 1.5 - (1 / 15) * speed
+        beta = 10 * 1.2 ** -speed
+        steering_angle = -beta * numerator_r / denominator_r
         
         print(speed)
         
