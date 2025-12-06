@@ -42,7 +42,7 @@ bridge:
     scan_beams: 1080
 
     # map parameters
-    map_path: "/home/exouser/f1sim_ws/src/f1tenth_gym_ros/maps/Nuerburgring/Nuerburgring_map"
+    map_path: "/home/exouser/f1sim_ws/src/f1tenth_gym_ros/maps/Catalunya/Catalunya_map"
     map_img_ext: ".png"
 
     # car parameters and scale
