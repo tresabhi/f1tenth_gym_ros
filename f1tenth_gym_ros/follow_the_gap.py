@@ -105,7 +105,7 @@ class FollowTheGap(Node):
           denominator_s += 1
           
         speed = numerator_s / denominator_s
-        speed = 1.7 * speed ** 0.65
+        speed = 2.0 * speed ** 0.65
 
         numerator_r = 0
         denominator_r = 0
