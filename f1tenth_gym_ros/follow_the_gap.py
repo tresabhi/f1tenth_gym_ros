@@ -98,10 +98,10 @@ class FollowTheGap(Node):
           index = ranges.index(r)
           theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
           
-          if abs(theta) > np.radians(60):
+          if abs(theta) > np.radians(50):
             continue
           
-          weight_r = r ** (-1/2)
+          weight_r = r ** -0.7
           numerator_r += weight_r * theta 
           denominator_r += weight_r
           
@@ -121,7 +121,7 @@ class FollowTheGap(Node):
           denominator_s += 1
           
         speed = numerator_s / denominator_s
-        speed = 2.5 * speed ** (1 / 3)
+        speed = 2.25 * speed ** (1 / 2)
         
         print(speed)
         
