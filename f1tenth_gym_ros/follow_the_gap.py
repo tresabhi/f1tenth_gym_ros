@@ -105,7 +105,7 @@ class FollowTheGap(Node):
           denominator_s += 1
           
         speed = numerator_s / denominator_s
-        speed = 2.0 * speed ** 0.65
+        speed = 2.2 * speed ** 0.65
 
         numerator_r = 0
         denominator_r = 0
@@ -122,7 +122,7 @@ class FollowTheGap(Node):
           denominator_r += weight_r
           
         # beta = 1.5 - (1 / 15) * speed
-        beta = 10.0 * 1.2 ** -speed
+        beta = 10.0 * 1.2 ** -(0.9 * speed)
         steering_angle = -beta * numerator_r / denominator_r
         
         print(speed)
