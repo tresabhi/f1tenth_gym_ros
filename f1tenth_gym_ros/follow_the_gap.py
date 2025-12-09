@@ -1,3 +1,4 @@
+import random
 
 # import rospy
 import numpy as np
@@ -18,14 +19,12 @@ class FollowTheGap(Node):
         super().__init__("follow_the_gap")
         # must publish to drive. this is how the kill switch can work when in use. Messages must be stamped
 
-        self.get_logger().info('Follow the gap started.')
-        self.drive_pub = self.create_publisher(
-            AckermannDriveStamped, "/drive", 1
-        )  
+        self.get_logger().info("Follow the gap started.")
+        self.drive_pub = self.create_publisher(AckermannDriveStamped, "/drive", 1)
         self.scan = self.create_subscription(
             LaserScan(),
             # if using real car, need Lidar message
-            #"/picoScan_23460001/scan/all_segments_echo0",
+            # "/picoScan_23460001/scan/all_segments_echo0",
             "/scan",
             self.lidar_callback,
             1,
@@ -79,7 +78,6 @@ class FollowTheGap(Node):
         max_gap_end = 0
         max_gap_length = 0
 
-
         return max_gap_start, max_gap_end
 
     def lidar_callback(self, data):
@@ -93,40 +91,58 @@ class FollowTheGap(Node):
 
         numerator_s = 0
         denominator_s = 0
-        
+
+        noise_mean = 0.0
+        noise_std = 0.1
+        ranges = [
+            max(r + np.random.normal(loc=noise_mean, scale=noise_std), 0.0)
+            for r in ranges
+        ]
+
+        window = int(len(ranges) * (np.radians(5) / self.lidar_fov))
+        print("window", window)
+        smoothed = []
+
+        for i in range(len(ranges)):
+            start = max(0, i - window + 1)
+            window_slice = ranges[start : i + 1]
+            smoothed.append(sum(window_slice) / len(window_slice))
+
+        ranges = smoothed
+
         for r in ranges:
-          index = ranges.index(r)
-          theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
-          
-          if abs(theta) > np.radians(15):
-            continue
-          
-          numerator_s += r
-          denominator_s += 1
-          
+            index = ranges.index(r)
+            theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
+
+            if abs(theta) > np.radians(15):
+                continue
+
+            numerator_s += r
+            denominator_s += 1
+
         speed = numerator_s / denominator_s
-        speed = 1.7 * speed ** 0.65
+        speed = 1.7 * speed**0.65
 
         numerator_r = 0
         denominator_r = 0
-        
+
         for r in ranges:
-          index = ranges.index(r)
-          theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
-          
-          if abs(theta) > np.radians(50):
-            continue
-          
-          weight_r = r ** -0.7
-          numerator_r += weight_r * theta 
-          denominator_r += weight_r
-          
+            index = ranges.index(r)
+            theta = self.lidar_fov * (index / len(ranges)) - self.lidar_fov / 2
+
+            if abs(theta) > np.radians(50):
+                continue
+
+            weight_r = r**-0.7
+            numerator_r += weight_r * theta
+            denominator_r += weight_r
+
         # beta = 1.5 - (1 / 15) * speed
         beta = 10.0 * 1.2 ** -(0.9 * speed)
         steering_angle = -beta * numerator_r / denominator_r
-        
+
         print(speed)
-        
+
         # print(ranges[0])
 
         # this will make it crash if there are any bends in the track
@@ -135,24 +151,21 @@ class FollowTheGap(Node):
 
         self.pub_drive(speed, steering_angle)
 
-
     def pub_drive(self, speed, steering_angle):
         # publish drive messages from speed and steering angle
         drive_msg = AckermannDriveStamped()
-        drive_msg.header.stamp = (
-            self.get_clock().now().to_msg()
-        )  
+        drive_msg.header.stamp = self.get_clock().now().to_msg()
         drive_msg.drive.speed = speed  #! must be a float
         drive_msg.drive.steering_angle = steering_angle  # same
         self.drive_pub.publish(drive_msg)
-        self.get_logger().info(f"Control commands given, Speed: {speed}, Steering Angle: {steering_angle}.")
+        self.get_logger().info(
+            f"Control commands given, Speed: {speed}, Steering Angle: {steering_angle}."
+        )
 
     def cleanup_on_shutdown(self):
-        self.get_logger().info('Performing cleanup actions during shutdown.')
+        self.get_logger().info("Performing cleanup actions during shutdown.")
         drive_msg = AckermannDriveStamped()
-        drive_msg.header.stamp = (
-            self.get_clock().now().to_msg()
-        )  
+        drive_msg.header.stamp = self.get_clock().now().to_msg()
         drive_msg.drive.speed = 0.0  #! must be a float
         drive_msg.drive.steering_angle = 0.0  # same
         self.drive_pub.publish(drive_msg)
@@ -173,10 +186,11 @@ def main(args=None):
         pass
     finally:
         # This block is always executed during shutdown
-        follow_the_gap.get_logger().info('Ctrl+C received, stopping car.')
+        follow_the_gap.get_logger().info("Ctrl+C received, stopping car.")
         follow_the_gap.destroy_node()
-        follow_the_gap.get_logger().info('Node shut down completely.')
-        #rclpy.shutdown()
+        follow_the_gap.get_logger().info("Node shut down completely.")
+        # rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()
