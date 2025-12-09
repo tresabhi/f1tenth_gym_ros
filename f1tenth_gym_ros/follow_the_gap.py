@@ -89,26 +89,26 @@ class FollowTheGap(Node):
         # max_range_index = ranges.index(max_range)
         # theta = self.lidar_fov * (max_range_index / len(ranges)) - self.lidar_fov / 2
 
+        # noise_mean = 0.0
+        # noise_std = 0.1
+        # ranges = [
+        #     max(r + np.random.normal(loc=noise_mean, scale=noise_std), 0.0)
+        #     for r in ranges
+        # ]
+
+        # window = int(len(ranges) * (np.radians(5) / self.lidar_fov))
+        # print("window", window)
+        # smoothed = []
+
+        # for i in range(len(ranges)):
+        #     start = max(0, i - window + 1)
+        #     window_slice = ranges[start : i + 1]
+        #     smoothed.append(sum(window_slice) / len(window_slice))
+
+        # ranges = smoothed
+
         numerator_s = 0
         denominator_s = 0
-
-        noise_mean = 0.0
-        noise_std = 0.1
-        ranges = [
-            max(r + np.random.normal(loc=noise_mean, scale=noise_std), 0.0)
-            for r in ranges
-        ]
-
-        window = int(len(ranges) * (np.radians(5) / self.lidar_fov))
-        print("window", window)
-        smoothed = []
-
-        for i in range(len(ranges)):
-            start = max(0, i - window + 1)
-            window_slice = ranges[start : i + 1]
-            smoothed.append(sum(window_slice) / len(window_slice))
-
-        ranges = smoothed
 
         for r in ranges:
             index = ranges.index(r)
